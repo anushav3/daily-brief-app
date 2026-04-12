@@ -128,6 +128,59 @@ vercel --yes        # links repo, auto-deploys on every push
 
 ---
 
+## Alternatives & scaling up
+
+### Other hosting options
+
+| Option | Best for | Free tier | Cron support |
+|--------|----------|-----------|--------------|
+| **Vercel** *(used)* | Serverless functions, instant deploys | Yes | Yes (Pro for custom schedules) |
+| **GitHub Actions** | Scheduled jobs, public repos | Yes (2,000 min/mo) | Full cron syntax, free |
+| **Railway** | Always-on apps, simple deploys | $5 credit/mo | Yes, via cron jobs |
+| **Render** | Web services + cron jobs | Yes (spins down on idle) | Yes (native cron jobs) |
+| **Fly.io** | Containerised apps, global edge | Yes (3 shared VMs) | Yes, via `fly machines run` |
+| **AWS Lambda** | Scale to millions of runs | Yes (1M req/mo free) | Yes, via EventBridge |
+| **Local cron** | Simplest, no account needed | Free | Yes, if machine is always on |
+
+**Recommendation for noobs:** GitHub Actions for scheduling (free, reliable, visible logs) + Vercel for the HTTP endpoint.
+
+### Other email sending options
+
+| Option | Free tier | Setup complexity | Notes |
+|--------|-----------|-----------------|-------|
+| **Resend** *(used)* | 100 emails/day | Low — one API key | Best DX, modern API |
+| **SendGrid** | 100 emails/day | Low — one API key | Industry standard, more config |
+| **Postmark** | 100 emails/mo (trial) | Low | Best deliverability, transactional focus |
+| **Mailgun** | 100 emails/day (trial) | Medium | Requires domain verification |
+| **Amazon SES** | 62,000 emails/mo (from EC2) | High | Cheapest at scale ($0.10/1K emails) |
+| **Gmail SMTP** | Free | High — App Passwords often blocked | Works on personal accounts only |
+
+**Recommendation:** Resend for low volume. Amazon SES if you're sending thousands.
+
+### What if I need a database?
+
+This app is stateless — it fetches fresh data every run and doesn't store anything. But if you wanted to extend it (e.g. track which articles you've already seen, store user preferences, log send history), here are the options:
+
+| Option | Best for | Free tier | Notes |
+|--------|----------|-----------|-------|
+| **Vercel KV** (Redis) | Simple key-value, flags, deduplication | Yes | Built into Vercel, one line to connect |
+| **Vercel Postgres** | Structured data, SQL queries | Yes | Neon-powered, works with any Python SQL lib |
+| **Supabase** | Full Postgres + auth + realtime | Yes (generous) | Best free Postgres, great dashboard |
+| **PlanetScale** | MySQL, branching like git | Yes | Great for schema changes |
+| **SQLite** | Local dev, single-user apps | Free | Serverless environments can't persist files — not for Vercel |
+| **MongoDB Atlas** | Flexible schema, JSON-like docs | Yes (512MB) | Good for storing raw feed articles |
+| **Upstash Redis** | Rate limiting, caching, queues | Yes | Serverless-native, per-request pricing |
+
+**Example use cases for this app:**
+- *Deduplication:* store article URLs in Redis — skip ones already sent
+- *Read tracking:* log which links were clicked (needs a redirect proxy)
+- *User preferences:* let subscribers pick their sections — store in Postgres
+- *Send history:* write a row per send to Postgres — useful for debugging
+
+**Recommendation for noobs:** Start without a DB — you probably don't need one. If you do, Supabase Postgres is the easiest to get started with and has a great UI.
+
+---
+
 ## Use this yourself
 
 Anyone can fork this repo and have their own daily brief running in under 10 minutes.

@@ -226,7 +226,40 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     </ul>
   </div>
 
-  <!-- 12. END -->
+  <!-- 12. ALTERNATIVES -->
+  <div class="slide slide-dark">
+    <h3>going further</h3>
+    <h2>Swap any piece of the stack.</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; max-width:960px; width:100%; text-align:left; margin-top:8px">
+      <div class="col">
+        <h4 class="blue">Hosting</h4>
+        <li><span class="green">✓</span> Vercel — instant deploys</li>
+        <li><span class="green">✓</span> GitHub Actions — free cron</li>
+        <li><span class="green">✓</span> Render — native cron jobs</li>
+        <li><span class="green">✓</span> Railway — always-on apps</li>
+        <li><span class="green">✓</span> AWS Lambda — scale to millions</li>
+      </div>
+      <div class="col">
+        <h4 class="yellow">Email</h4>
+        <li><span class="green">✓</span> Resend — best DX, free tier</li>
+        <li>SendGrid — industry standard</li>
+        <li>Postmark — best deliverability</li>
+        <li>Mailgun — requires domain</li>
+        <li>Amazon SES — cheapest at scale</li>
+      </div>
+      <div class="col">
+        <h4 class="green">Need a database?</h4>
+        <li><strong class="blue">Start without one.</strong></li>
+        <li>Supabase — easiest Postgres</li>
+        <li>Vercel KV — Redis, one line</li>
+        <li>Upstash — serverless Redis</li>
+        <li>MongoDB Atlas — flexible JSON</li>
+      </div>
+    </div>
+    <p style="margin-top:20px; font-size:0.95rem; color:#555">Use cases for a DB: deduplicate articles · track read history · store user preferences · log every send</p>
+  </div>
+
+  <!-- 13. END -->
   <div class="slide slide-hero">
     <h1 style="font-size:2.5rem">Build something <span class="green">you actually use</span>.</h1>
     <p style="margin-top:20px; font-size:1.2rem">The best project is one that runs every morning<br/>and you never have to think about again.</p>
@@ -241,7 +274,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
 <!-- nav controls -->
 <div class="nav">
   <button onclick="prev()">← prev</button>
-  <span class="counter" id="counter">1 / 12</span>
+  <span class="counter" id="counter">1 / 13</span>
   <button onclick="next()">next →</button>
 </div>
 
