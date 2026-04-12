@@ -226,7 +226,83 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     </ul>
   </div>
 
-  <!-- 12. ALTERNATIVES -->
+  <!-- 12. VSCODE + CLAUDE CODE -->
+  <div class="slide slide-dark">
+    <h3>the dev setup</h3>
+    <h2>VSCode + Claude Code<br/>+ Google Drive</h2>
+    <div class="two-col" style="max-width:860px;">
+      <div class="col">
+        <h4 class="blue">Setup (once)</h4>
+        <li>1. Install VSCode + Node.js</li>
+        <li>2. <code>npm install -g @anthropic-ai/claude-code</code></li>
+        <li>3. VSCode Extensions → search <em>"Claude Code"</em> → Install</li>
+        <li>4. <code>claude</code> in terminal → log in</li>
+        <li>5. Open your project folder in VSCode</li>
+      </div>
+      <div class="col">
+        <h4 class="green">Why this stack</h4>
+        <li><span class="green">Google Drive</span> — auto-backup, access anywhere, 15GB free</li>
+        <li><span class="blue">Claude Code</span> — reads your whole codebase, runs commands, edits files</li>
+        <li><span class="yellow">VSCode</span> — see every diff before it lands, inline review</li>
+        <li>No manual coding — describe the outcome, agent does the rest</li>
+      </div>
+    </div>
+    <p style="margin-top:20px; font-size:0.9rem; color:#555">Project lives in Google Drive → edits via Claude Code → git push → Vercel auto-deploys</p>
+  </div>
+
+  <!-- 13. PIPELINE DIAGRAM -->
+  <div class="slide slide-dark">
+    <h3>the full picture</h3>
+    <h2>Pipeline: every moving part</h2>
+    <div style="display:flex; flex-direction:column; gap:10px; width:100%; max-width:860px; font-family:'Courier New',monospace; font-size:11px;">
+
+      <!-- Dev row -->
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="color:#444; width:52px; font-size:10px; flex-shrink:0;">DEV</span>
+        <span style="background:#0d1117; border:1px solid #1e40af; border-radius:4px; padding:5px 10px; color:#93c5fd;">Google Drive</span>
+        <span style="color:#333;">→</span>
+        <span style="background:#0d1117; border:1px solid #1e40af; border-radius:4px; padding:5px 10px; color:#93c5fd;">VSCode + Claude Code</span>
+        <span style="color:#333;">→</span>
+        <span style="background:#111; border:1px solid #334; border-radius:4px; padding:5px 10px; color:#666;">GitHub</span>
+        <span style="color:#333;">→</span>
+        <span style="background:#0d1117; border:1px solid #1e40af; border-radius:4px; padding:5px 10px; color:#93c5fd;">Vercel auto-deploy</span>
+      </div>
+
+      <div style="padding-left:52px; color:#222; font-size:18px;">↓</div>
+
+      <!-- Trigger row -->
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="color:#444; width:52px; font-size:10px; flex-shrink:0;">CRON</span>
+        <span style="background:#17170d; border:1px solid #92400e; border-radius:4px; padding:5px 10px; color:#fde68a;">Vercel Cron · Mon–Fri 8AM</span>
+        <span style="color:#333;">→</span>
+        <span style="background:#17170d; border:1px solid #92400e; border-radius:4px; padding:5px 10px; color:#fde68a;">GET /api/send_brief</span>
+        <span style="color:#333;">→</span>
+        <span style="background:#17100d; border:1px solid #92400e; border-radius:4px; padding:5px 10px; color:#fdba74;">daily_brief_email.py</span>
+      </div>
+
+      <div style="padding-left:52px; color:#222; font-size:18px;">↓</div>
+
+      <!-- Fetch row -->
+      <div style="display:flex; align-items:flex-center; gap:6px;">
+        <span style="color:#444; width:52px; font-size:10px; flex-shrink:0;">FETCH</span>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <span style="background:#0d170d; border:1px solid #14532d; border-radius:4px; padding:4px 10px; color:#86efac;">Yahoo Finance · ZS PANW CRWD ANET NTSK</span>
+          <span style="background:#0d170d; border:1px solid #14532d; border-radius:4px; padding:4px 10px; color:#86efac;">TLDR RSS · AI · Infosec · Startups · Product</span>
+          <span style="background:#0d170d; border:1px solid #14532d; border-radius:4px; padding:4px 10px; color:#86efac;">AI Daily Brief · beehiiv /archive scrape</span>
+          <span style="background:#0d170d; border:1px solid #14532d; border-radius:4px; padding:4px 10px; color:#86efac;">NPR Up First · RSS feed</span>
+        </div>
+        <span style="color:#333; font-size:20px; align-self:center;">→</span>
+        <span style="background:#17100d; border:1px solid #92400e; border-radius:4px; padding:5px 14px; color:#fdba74; align-self:center;">HTML<br/>Builder</span>
+        <span style="color:#333; font-size:20px; align-self:center;">→</span>
+        <span style="background:#170d17; border:1px solid #6b21a8; border-radius:4px; padding:5px 10px; color:#d8b4fe; align-self:center;">Resend API</span>
+        <span style="color:#333; font-size:20px; align-self:center;">→</span>
+        <span style="background:#0d1717; border:1px solid #134e4a; border-radius:4px; padding:5px 10px; color:#99f6e4; align-self:center;">Gmail Inbox</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 15. ALTERNATIVES -->
   <div class="slide slide-dark">
     <h3>going further</h3>
     <h2>Swap any piece of the stack.</h2>
@@ -259,7 +335,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     <p style="margin-top:20px; font-size:0.95rem; color:#555">Use cases for a DB: deduplicate articles · track read history · store user preferences · log every send</p>
   </div>
 
-  <!-- 13. END -->
+  <!-- 16. END -->
   <div class="slide slide-hero">
     <h1 style="font-size:2.5rem">Build something <span class="green">you actually use</span>.</h1>
     <p style="margin-top:20px; font-size:1.2rem">The best project is one that runs every morning<br/>and you never have to think about again.</p>
@@ -274,7 +350,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
 <!-- nav controls -->
 <div class="nav">
   <button onclick="prev()">← prev</button>
-  <span class="counter" id="counter">1 / 13</span>
+  <span class="counter" id="counter">1 / 15</span>
   <button onclick="next()">next →</button>
 </div>
 

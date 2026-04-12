@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Daily Brief — Pipeline Diagram</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0a0a; color: #e0e0e0; font-family: 'Courier New', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+
+h1 { font-size: 1rem; color: #444; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 40px; }
+
+.diagram { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: 960px; }
+
+/* LAYERS */
+.layer { display: flex; align-items: center; justify-content: center; gap: 0; position: relative; }
+.layer-label { writing-mode: vertical-rl; text-orientation: mixed; font-size: 10px; color: #333; letter-spacing: 0.15em; text-transform: uppercase; width: 28px; flex-shrink: 0; }
+
+/* NODES */
+.node {
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 11px;
+  text-align: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+}
+.node .title { font-weight: 700; font-size: 12px; margin-bottom: 2px; }
+.node .sub   { font-size: 10px; color: #555; }
+
+.node-dev    { background: #0d1117; border-color: #60a5fa; color: #93c5fd; }
+.node-data   { background: #0d170d; border-color: #4ade80; color: #86efac; }
+.node-proc   { background: #17100d; border-color: #fb923c; color: #fdba74; }
+.node-send   { background: #170d17; border-color: #c084fc; color: #d8b4fe; }
+.node-store  { background: #111; border-color: #334; color: #888; }
+.node-cron   { background: #17170d; border-color: #fbbf24; color: #fde68a; }
+.node-out    { background: #0d1717; border-color: #2dd4bf; color: #99f6e4; }
+
+/* ARROWS */
+.arrow { display: flex; align-items: center; padding: 0 4px; color: #333; font-size: 16px; flex-shrink: 0; }
+.arrow-down { display: flex; flex-direction: column; align-items: center; height: 28px; justify-content: center; color: #333; font-size: 14px; }
+.spacer { flex: 1; }
+
+/* GROUPS */
+.group { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.group-row { display: flex; align-items: center; gap: 0; }
+
+/* DIVIDER */
+.divider { width: 100%; height: 1px; background: #111; margin: 20px 0; position: relative; }
+.divider-label { position: absolute; left: 50%; transform: translateX(-50%); top: -9px; background: #0a0a0a; padding: 0 12px; font-size: 10px; color: #333; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* BRACKET / BRACE for data sources */
+.sources { display: flex; flex-direction: column; gap: 6px; }
+.brace { font-size: 32px; color: #2a2a2a; display: flex; align-items: center; padding: 0 6px; line-height: 1; }
+</style>
+</head>
+<body>
+<h1>Daily Brief — Pipeline</h1>
+
+<div class="diagram">
+
+  <!-- DEV LAYER -->
+  <div style="display:flex; align-items:center; gap:0; justify-content:center;">
+    <span class="layer-label">dev</span>
+    <div style="display:flex; align-items:center; gap:0; flex:1; justify-content:center;">
+      <div class="node node-store">
+        <div class="title">Google Drive</div>
+        <div class="sub">local storage</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-dev">
+        <div class="title">VSCode</div>
+        <div class="sub">+ Claude Code</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-store">
+        <div class="title">GitHub</div>
+        <div class="sub">anushav3/daily-brief-app</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-dev">
+        <div class="title">Vercel</div>
+        <div class="sub">auto-deploy on push</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><span class="divider-label">runtime</span></div>
+
+  <!-- TRIGGER -->
+  <div style="display:flex; align-items:center; justify-content:center; gap:0;">
+    <span class="layer-label">trigger</span>
+    <div style="display:flex; align-items:center; gap:0; flex:1; justify-content:center;">
+      <div class="node node-cron">
+        <div class="title">Vercel Cron</div>
+        <div class="sub">Mon–Fri 16:00 UTC</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-cron">
+        <div class="title">GET /api/send_brief</div>
+        <div class="sub">+ CRON_SECRET header</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-proc">
+        <div class="title">daily_brief_email.py</div>
+        <div class="sub">Python 3.12 · stdlib only</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content:center; padding: 4px 0;">
+    <div class="arrow-down">↓</div>
+  </div>
+
+  <!-- FETCH LAYER -->
+  <div style="display:flex; align-items:center; justify-content:center; gap:0;">
+    <span class="layer-label">fetch</span>
+    <div style="display:flex; align-items:center; gap:0; flex:1; justify-content:center;">
+
+      <div class="sources">
+        <div class="node node-data" style="width:180px">
+          <div class="title">Yahoo Finance API</div>
+          <div class="sub">ZS · PANW · CRWD · ANET · NTSK</div>
+        </div>
+        <div class="node node-data" style="width:180px">
+          <div class="title">TLDR RSS Feeds</div>
+          <div class="sub">AI · Infosec · Startups · Product</div>
+        </div>
+        <div class="node node-data" style="width:180px">
+          <div class="title">AI Daily Brief</div>
+          <div class="sub">beehiiv /archive scrape</div>
+        </div>
+        <div class="node node-data" style="width:180px">
+          <div class="title">NPR Up First</div>
+          <div class="sub">RSS podcast feed</div>
+        </div>
+      </div>
+
+      <div class="brace">}</div>
+      <div class="arrow">→</div>
+
+      <div class="node node-proc" style="padding:16px 20px;">
+        <div class="title">HTML Builder</div>
+        <div class="sub">stock ticker</div>
+        <div class="sub">3-col news grid</div>
+        <div class="sub">dark theme CSS</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content:center; padding: 4px 0;">
+    <div class="arrow-down">↓</div>
+  </div>
+
+  <!-- SEND LAYER -->
+  <div style="display:flex; align-items:center; justify-content:center; gap:0;">
+    <span class="layer-label">send</span>
+    <div style="display:flex; align-items:center; gap:0; flex:1; justify-content:center;">
+      <div class="node node-send">
+        <div class="title">Resend API</div>
+        <div class="sub">POST api.resend.com/emails</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node-out">
+        <div class="title">Gmail Inbox</div>
+        <div class="sub">from: onboarding@resend.dev</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:40px; display:flex; gap:24px; flex-wrap:wrap; justify-content:center;">
+  <span style="font-size:10px; color:#1a3a1a; background:#0d170d; border:1px solid #1a3a1a; border-radius:4px; padding:3px 10px;">■ data sources</span>
+  <span style="font-size:10px; color:#1a2a3a; background:#0d1117; border:1px solid #1a2a3a; border-radius:4px; padding:3px 10px;">■ dev tooling</span>
+  <span style="font-size:10px; color:#3a2a1a; background:#17100d; border:1px solid #3a2a1a; border-radius:4px; padding:3px 10px;">■ processing</span>
+  <span style="font-size:10px; color:#3a1a3a; background:#170d17; border:1px solid #3a1a3a; border-radius:4px; padding:3px 10px;">■ delivery</span>
+  <span style="font-size:10px; color:#3a3a1a; background:#17170d; border:1px solid #3a3a1a; border-radius:4px; padding:3px 10px;">■ trigger / schedule</span>
+</div>
+
+</body>
+</html>

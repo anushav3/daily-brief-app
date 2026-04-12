@@ -8,7 +8,65 @@ A vibe-coded daily email digest that aggregates AI, security, startup news and c
 
 Runs on a schedule → fetches news from RSS feeds + scrapes one site → pulls stock prices from Yahoo Finance → builds a dark-theme HTML email → sends it via Resend API.
 
-**Stack:** Python (stdlib only, zero pip installs) · Vercel · Resend · GitHub
+**Stack:** Python (stdlib only, zero pip installs) · Vercel · Resend · GitHub · Google Drive · VSCode + Claude Code
+
+---
+
+## Dev Environment: VSCode + Claude Code + Google Drive
+
+### Storage: Google Drive
+The entire project lives in a Google Drive folder synced locally via the Google Drive desktop app. This means:
+- Files are always backed up automatically
+- Accessible from any machine
+- No separate backup step before pushing to GitHub
+
+The working directory path looks like:
+```
+~/Library/CloudStorage/GoogleDrive-.../My Drive/career/daily-brief-app/
+```
+Git and Vercel work normally from this path — no special setup needed.
+
+### IDE: VSCode + Claude Code
+
+Claude Code is Anthropic's coding agent that runs in your terminal and understands your entire project. Combined with VSCode it becomes your pair programmer.
+
+**Setup steps:**
+
+1. **Install VSCode** — [code.visualstudio.com](https://code.visualstudio.com)
+
+2. **Install Node.js** (needed for npm) — [nodejs.org](https://nodejs.org)
+
+3. **Install Claude Code CLI:**
+   ```bash
+   npm install -g @anthropic-ai/claude-code
+   ```
+
+4. **Install the Claude Code VSCode extension:**
+   - Open VSCode → Extensions (`Cmd+Shift+X`)
+   - Search "Claude Code" → Install (published by Anthropic)
+   - This adds Claude Code to the VSCode sidebar and terminal integration
+
+5. **Authenticate:**
+   ```bash
+   claude
+   # Opens browser to log in with your Anthropic account
+   ```
+
+6. **Open your project in VSCode:**
+   ```bash
+   code "/path/to/your/project"
+   ```
+
+7. **Start building** — open the Claude Code panel in the sidebar or run `claude` in the VSCode terminal. Describe what you want:
+   > *"Add a new RSS feed for The Verge AI section to the daily brief"*
+   > *"The stock ticker is wrapping on mobile — fix it"*
+   > *"Deploy this to Vercel and set up a daily cron"*
+
+**Why VSCode + Claude Code over other editors:**
+- Claude Code reads your entire codebase for context — not just the open file
+- It can run terminal commands, edit files, and push to git in one session
+- VSCode's file explorer lets you review every change before accepting
+- The extension shows diffs inline so you always see what changed
 
 ---
 
@@ -129,6 +187,17 @@ vercel --yes        # links repo, auto-deploys on every push
 ---
 
 ## Alternatives & scaling up
+
+### Storage: where your code lives locally
+
+| Option | Best for | Free tier |
+|--------|----------|-----------|
+| **Google Drive** *(used)* | Auto-backup, access from anywhere, familiar UI | 15 GB free |
+| **iCloud Drive** | Mac-only, tight OS integration | 5 GB free |
+| **Dropbox** | Cross-platform, good selective sync | 2 GB free |
+| **Local only** | Simplest, fastest | Free |
+
+Google Drive works seamlessly with git and Vercel — the synced local path is just a regular folder. The only gotcha: very long path names (with spaces) need quoting in terminal commands.
 
 ### Other hosting options
 
