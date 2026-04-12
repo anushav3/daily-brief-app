@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-Anusha's Daily Brief — Email Sender
+Daily Brief — Email Sender
 Fetches latest AI/security/startup news and cybersecurity stock data,
 then sends a beautifully formatted HTML email.
 
 Setup:
   1. Create a Gmail App Password:
      Google Account → Security → 2-Step Verification → App passwords
-  2. Set the environment variable:
+  2. Set environment variables:
+     export EMAIL_TO='you@gmail.com'
+     export EMAIL_FROM='you@gmail.com'   # optional, defaults to EMAIL_TO
      export GMAIL_APP_PASSWORD='xxxx xxxx xxxx xxxx'
   3. Run:
      python3 daily_brief_email.py
@@ -29,8 +31,8 @@ from datetime import datetime, timezone, timedelta
 # ──────────────────────────────────────────────
 #  CONFIG
 # ──────────────────────────────────────────────
-EMAIL_TO      = "anusha.vaidyanathan2008@gmail.com"
-EMAIL_FROM    = "anusha.vaidyanathan2008@gmail.com"
+EMAIL_TO      = os.environ.get("EMAIL_TO", "")
+EMAIL_FROM    = os.environ.get("EMAIL_FROM", EMAIL_TO)   # defaults to same as EMAIL_TO
 SMTP_SERVER   = "smtp.gmail.com"
 SMTP_PORT     = 465
 APP_PASSWORD  = os.environ.get("GMAIL_APP_PASSWORD", "")
@@ -616,8 +618,12 @@ def send_email(html: str, subject: str, password: str) -> None:
 # ──────────────────────────────────────────────
 def main() -> None:
     print(f"\n{'='*55}")
-    print(f"  Anusha's Daily Brief  —  {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    print(f"  Daily Brief  —  {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print(f"{'='*55}\n")
+
+    if not EMAIL_TO:
+        print("❌  EMAIL_TO is not set. Run:  export EMAIL_TO='you@gmail.com'")
+        sys.exit(1)
 
     # Stocks
     print("📈 Fetching stock data…")
