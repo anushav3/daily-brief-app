@@ -29,7 +29,7 @@ class handler(BaseHTTPRequestHandler):
             self.send_response(500)
             self.send_header("Content-type", "text/plain")
             self.end_headers()
-            self.wfile.write(b"Error: check EMAIL_TO / GMAIL_APP_PASSWORD env vars")
+            self.wfile.write(b"Error: check EMAIL_TO / RESEND_API_KEY env vars")
         except Exception as e:
             self.send_response(500)
             self.send_header("Content-type", "text/plain")
