@@ -167,7 +167,32 @@
     </ul>
   </div>
 
-  <!-- 8. SECURITY -->
+  <!-- 8. BRANDING & LOCAL ITERATION -->
+  <div class="slide slide-dark">
+    <h3>lesson 4: design in local, not in prod</h3>
+    <h2>Iterate on your machine<br/>until the HTML looks right.</h2>
+    <div class="two-col" style="max-width:860px;">
+      <div class="col">
+        <h4 class="yellow">The loop</h4>
+        <li>1. Run <code>python3 daily_brief_email.py</code></li>
+        <li>2. Opens <code>daily_brief_preview.html</code></li>
+        <li>3. View in browser — tweak CSS</li>
+        <li>4. Re-run → refresh → repeat</li>
+        <li style="color:#555">No deploy needed. Instant feedback.</li>
+      </div>
+      <div class="col">
+        <h4 class="green">What we iterated on</h4>
+        <li>Stock ticker — single line → 2-row to fit all tickers</li>
+        <li>Whitespace — reduced padding, gaps, margins throughout</li>
+        <li>3-column grid — removed row alignment so cards stack flush</li>
+        <li>Section colors — per-feed accent colors</li>
+        <li>Feed content — right text length, first sentence only</li>
+      </div>
+    </div>
+    <p style="margin-top:20px; font-size:0.9rem; color:#555">All CSS lives in <code>branding-guidelines.md</code> — design separate from logic. Script reads and injects it at runtime.</p>
+  </div>
+
+  <!-- 9. SECURITY -->
   <div class="slide slide-dark">
     <h3>lesson 4: security from day 1</h3>
     <h2>Never commit secrets.<br/>Not even once.</h2>
@@ -378,7 +403,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
 <!-- nav controls -->
 <div class="nav">
   <button onclick="prev()">← prev</button>
-  <span class="counter" id="counter">1 / 16</span>
+  <span class="counter" id="counter">1 / 17</span>
   <button onclick="next()">next →</button>
 </div>
 
