@@ -30,43 +30,31 @@ Git and Vercel work normally from this path — no special setup needed.
 
 Claude Code is Anthropic's coding agent that runs in your terminal and understands your entire project. Combined with VSCode it becomes your pair programmer.
 
-**Setup steps:**
+**Setup steps (no terminal or npm needed):**
 
 1. **Install VSCode** — [code.visualstudio.com](https://code.visualstudio.com)
 
-2. **Install Node.js** (needed for npm) — [nodejs.org](https://nodejs.org)
-
-3. **Install Claude Code CLI:**
-   ```bash
-   npm install -g @anthropic-ai/claude-code
-   ```
-
-4. **Install the Claude Code VSCode extension:**
+2. **Install the Claude Code extension:**
    - Open VSCode → Extensions (`Cmd+Shift+X`)
    - Search "Claude Code" → Install (published by Anthropic)
-   - This adds Claude Code to the VSCode sidebar and terminal integration
 
-5. **Authenticate:**
-   ```bash
-   claude
-   # Opens browser to log in with your Anthropic account
-   ```
+3. **Sign in via the extension UI:**
+   - Claude Code panel appears in the **right pane** of VSCode
+   - Click Sign In → browser opens → log in with your Anthropic account
+   - No npm install, no terminal commands needed
 
-6. **Open your project in VSCode:**
-   ```bash
-   code "/path/to/your/project"
-   ```
+4. **Open your project folder in VSCode** — Claude Code reads the whole codebase automatically
 
-7. **Start building** — open the Claude Code panel in the sidebar or run `claude` in the VSCode terminal. Describe what you want:
+5. **Start building** — type in the right pane. Examples:
    > *"Add a new RSS feed for The Verge AI section to the daily brief"*
    > *"The stock ticker is wrapping on mobile — fix it"*
    > *"Deploy this to Vercel and set up a daily cron"*
 
-**Why VSCode + Claude Code over other editors:**
+**Why VSCode + Claude Code:**
 - Claude Code reads your entire codebase for context — not just the open file
-- It can run terminal commands, edit files, and push to git in one session
-- VSCode's file explorer lets you review every change before accepting
-- The extension shows diffs inline so you always see what changed
+- The right pane keeps chat next to your code — no switching windows
+- VSCode shows every diff inline before it's accepted
+- Can run terminal commands, edit files, and push to git in one session
 
 ---
 

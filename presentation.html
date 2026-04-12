@@ -232,18 +232,18 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     <h2>VSCode + Claude Code<br/>+ Google Drive</h2>
     <div class="two-col" style="max-width:860px;">
       <div class="col">
-        <h4 class="blue">Setup (once)</h4>
-        <li>1. Install VSCode + Node.js</li>
-        <li>2. <code>npm install -g @anthropic-ai/claude-code</code></li>
-        <li>3. VSCode Extensions → search <em>"Claude Code"</em> → Install</li>
-        <li>4. <code>claude</code> in terminal → log in</li>
-        <li>5. Open your project folder in VSCode</li>
+        <h4 class="blue">Setup (once, no terminal)</h4>
+        <li>1. Install VSCode</li>
+        <li>2. Extensions <code>Cmd+Shift+X</code> → search <em>"Claude Code"</em> → Install</li>
+        <li>3. Claude Code panel opens in the <strong>right pane</strong></li>
+        <li>4. Sign in via the extension UI — no npm, no terminal</li>
+        <li>5. Open your project folder → start chatting</li>
       </div>
       <div class="col">
         <h4 class="green">Why this stack</h4>
         <li><span class="green">Google Drive</span> — auto-backup, access anywhere, 15GB free</li>
-        <li><span class="blue">Claude Code</span> — reads your whole codebase, runs commands, edits files</li>
-        <li><span class="yellow">VSCode</span> — see every diff before it lands, inline review</li>
+        <li><span class="blue">Claude Code</span> — reads your whole codebase, edits files, runs commands</li>
+        <li><span class="yellow">VSCode right pane</span> — chat lives next to your code, review diffs inline</li>
         <li>No manual coding — describe the outcome, agent does the rest</li>
       </div>
     </div>
