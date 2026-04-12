@@ -106,15 +106,16 @@
     <div class="two-col">
       <div class="col">
         <h4 class="green">What we used</h4>
-        <li>Python (stdlib only — no pip)</li>
+        <li>Python (no extra packages — see right)</li>
         <li>Vercel (serverless hosting)</li>
         <li>Resend (email API)</li>
         <li>GitHub (source + auto-deploy)</li>
         <li>Claude Code (coding agent)</li>
       </div>
       <div class="col">
-        <h4 class="yellow">Why stdlib only?</h4>
-        <p>Every third-party package is a potential deployment failure. <code>urllib</code>, <code>json</code>, and <code>xml</code> are already on every Python runtime — including Vercel's. Zero setup, zero version conflicts.</p>
+        <h4 class="yellow">What is "stdlib only"?</h4>
+        <p>Python ships with built-in tools for making HTTP requests, parsing XML, and reading JSON — no installation needed. We used only those.</p>
+        <p style="margin-top:8px; color:#666; font-size:0.9em">No <code>pip install</code>, no package list, no version conflicts. The script runs anywhere Python runs — including Vercel — with zero setup.</p>
       </div>
     </div>
   </div>
@@ -159,12 +160,20 @@
   <div class="slide slide-warn">
     <h3>lesson 3: deployment has gotchas</h3>
     <h2>Vercel tried to be too clever.</h2>
-    <ul class="list" style="max-width:700px">
-      <li><span class="icon red">✗</span><span>Had a <code>requirements.txt</code> → Vercel ran <code>uv lock</code> → failed looking for <code>pyproject.toml</code></span></li>
-      <li><span class="icon green">✓</span><span>Fix: delete <code>requirements.txt</code> (we have zero dependencies anyway)</span></li>
-      <li><span class="icon red">✗</span><span>Vercel then looked for <code>app.py</code> / <code>main.py</code> web entrypoints → "No python entrypoint found"</span></li>
-      <li><span class="icon green">✓</span><span>Fix: add <code>"framework": null</code> to <code>vercel.json</code> to opt out of framework detection</span></li>
-    </ul>
+    <div class="two-col" style="max-width:860px; gap:24px;">
+      <div class="col">
+        <h4 class="red">Gotcha 1</h4>
+        <p>We had a <code>requirements.txt</code> (a list of Python packages to install).</p>
+        <p style="margin-top:8px">Vercel saw it and tried to run a package manager — but our script has <strong>zero external packages</strong>, so the file was pointless.</p>
+        <p style="margin-top:8px" class="green">✓ Fix: delete <code>requirements.txt</code></p>
+      </div>
+      <div class="col">
+        <h4 class="red">Gotcha 2</h4>
+        <p>Without <code>requirements.txt</code>, Vercel hunted for a web app entry point (<code>app.py</code>, <code>main.py</code>…). Couldn't find one. Refused to deploy.</p>
+        <p style="margin-top:8px">Our script isn't a web app — it's just a function that runs on a schedule.</p>
+        <p style="margin-top:8px" class="green">✓ Fix: one line in <code>vercel.json</code> → <code>"framework": null</code></p>
+      </div>
+    </div>
   </div>
 
   <!-- 8. BRANDING & LOCAL ITERATION -->
@@ -285,33 +294,35 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
   <!-- 14. CLAUDE SKILLS & TOOL CALLS -->
   <div class="slide slide-dark">
     <h3>under the hood</h3>
-    <h2>Claude uses tools automatically.<br/><span class="blue">You don't configure anything.</span></h2>
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; max-width:920px; width:100%; text-align:left; margin-top:8px">
+    <h2>How Claude actually does things</h2>
+    <p style="color:#555; margin-bottom:16px; max-width:680px">Claude doesn't just write text back — it takes actions using built-in tools. Most are automatic. A few you trigger yourself.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; max-width:920px; width:100%; text-align:left;">
       <div class="col">
-        <h4 class="green">File tools <span style="font-weight:normal;color:#444;font-size:0.85em">(implicit)</span></h4>
-        <li><code>Read</code> — reads any file</li>
-        <li><code>Edit</code> — precise find-and-replace</li>
-        <li><code>Write</code> — creates new files</li>
-        <li><code>Grep</code> — searches file contents</li>
-        <li><code>Glob</code> — finds files by pattern</li>
-        <p style="margin-top:8px; color:#444; font-size:10px">Used constantly — every code change in this project went through these.</p>
+        <h4 class="green">Reading &amp; editing files</h4>
+        <p style="color:#666; font-size:0.85em; margin-bottom:8px">Happens automatically whenever you ask Claude to change code.</p>
+        <li><code>Read</code> — opens a file</li>
+        <li><code>Edit</code> — makes a targeted change</li>
+        <li><code>Write</code> — creates a new file</li>
+        <li><code>Grep</code> — searches inside files</li>
+        <li><code>Glob</code> — finds files by name</li>
       </div>
       <div class="col">
-        <h4 class="yellow">Action tools <span style="font-weight:normal;color:#444;font-size:0.85em">(implicit)</span></h4>
-        <li><code>Bash</code> — runs terminal commands</li>
-        <li><code>WebFetch</code> — fetches a URL</li>
+        <h4 class="yellow">Running commands &amp; web</h4>
+        <p style="color:#666; font-size:0.85em; margin-bottom:8px">Claude can run your script, push to GitHub, or look something up.</p>
+        <li><code>Bash</code> — runs a terminal command</li>
+        <li><code>WebFetch</code> — opens a URL</li>
         <li><code>WebSearch</code> — searches the web</li>
-        <p style="margin-top:8px; color:#444; font-size:10px">Used to run the script, deploy to Vercel, push to GitHub, check Resend API docs.</p>
+        <p style="margin-top:10px; color:#555; font-size:0.85em">e.g. "run the script and show me the output" → Claude calls <code>Bash</code></p>
       </div>
       <div class="col">
-        <h4 class="blue">Skills <span style="font-weight:normal;color:#444;font-size:0.85em">(you invoke)</span></h4>
-        <li><code>/commit</code> — stages + commits</li>
-        <li><code>/review-pr</code> — reviews a PR</li>
-        <li>Custom skills configurable</li>
-        <p style="margin-top:8px; color:#444; font-size:10px">Type <code>/skill-name</code> to trigger. Everything else — Claude decides which tool to use on its own.</p>
+        <h4 class="blue">Skills — you trigger these</h4>
+        <p style="color:#666; font-size:0.85em; margin-bottom:8px">Type <code>/skill-name</code> to run a named workflow.</p>
+        <li><code>/commit</code> — writes a commit message, stages files, commits</li>
+        <li><code>/review-pr</code> — reviews a pull request</li>
+        <p style="margin-top:10px; color:#555; font-size:0.85em">Everything else Claude picks on its own — you never choose which tool to call.</p>
       </div>
     </div>
-    <p style="margin-top:16px; font-size:0.9rem; color:#555">Claude asks permission before running commands or editing files — <span class="green">you approve each action</span>, nothing happens silently.</p>
+    <p style="margin-top:16px; font-size:0.85rem; color:#555; max-width:780px">⚠️ Claude asks before running any command or editing any file. <span class="green">You approve each action</span> — nothing happens silently.</p>
   </div>
 
   <!-- 15. PIPELINE DIAGRAM -->
