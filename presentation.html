@@ -324,8 +324,8 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
       </li>
       <li>
         <span class="icon">🔁</span>
-        <span><strong>Test without waiting for cron</strong> — trigger manually anytime<br/>
-        <span style="color:#666; font-size:0.9em"><code>curl https://daily-brief-app.vercel.app/api/send_brief</code> — instant run, full logs appear immediately.</span></span>
+        <span><strong>Test without waiting for cron</strong> — run from Vercel dashboard, not terminal<br/>
+        <span style="color:#666; font-size:0.9em">Go to <code>Vercel → project → Deployments → Functions → send_brief → Test</code>. Running from terminal skips the env vars Vercel injected — the deployed function already has them baked in.</span></span>
       </li>
     </ul>
   </div>
