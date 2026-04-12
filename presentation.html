@@ -282,7 +282,39 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     <p style="margin-top:20px; font-size:0.95rem; color:#aaa">Without these files, you repeat yourself every session.<br/>With them, the agent already knows your project — <span class="green">pick up exactly where you left off.</span></p>
   </div>
 
-  <!-- 14. PIPELINE DIAGRAM -->
+  <!-- 14. CLAUDE SKILLS & TOOL CALLS -->
+  <div class="slide slide-dark">
+    <h3>under the hood</h3>
+    <h2>Claude uses tools automatically.<br/><span class="blue">You don't configure anything.</span></h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; max-width:920px; width:100%; text-align:left; margin-top:8px">
+      <div class="col">
+        <h4 class="green">File tools <span style="font-weight:normal;color:#444;font-size:0.85em">(implicit)</span></h4>
+        <li><code>Read</code> — reads any file</li>
+        <li><code>Edit</code> — precise find-and-replace</li>
+        <li><code>Write</code> — creates new files</li>
+        <li><code>Grep</code> — searches file contents</li>
+        <li><code>Glob</code> — finds files by pattern</li>
+        <p style="margin-top:8px; color:#444; font-size:10px">Used constantly — every code change in this project went through these.</p>
+      </div>
+      <div class="col">
+        <h4 class="yellow">Action tools <span style="font-weight:normal;color:#444;font-size:0.85em">(implicit)</span></h4>
+        <li><code>Bash</code> — runs terminal commands</li>
+        <li><code>WebFetch</code> — fetches a URL</li>
+        <li><code>WebSearch</code> — searches the web</li>
+        <p style="margin-top:8px; color:#444; font-size:10px">Used to run the script, deploy to Vercel, push to GitHub, check Resend API docs.</p>
+      </div>
+      <div class="col">
+        <h4 class="blue">Skills <span style="font-weight:normal;color:#444;font-size:0.85em">(you invoke)</span></h4>
+        <li><code>/commit</code> — stages + commits</li>
+        <li><code>/review-pr</code> — reviews a PR</li>
+        <li>Custom skills configurable</li>
+        <p style="margin-top:8px; color:#444; font-size:10px">Type <code>/skill-name</code> to trigger. Everything else — Claude decides which tool to use on its own.</p>
+      </div>
+    </div>
+    <p style="margin-top:16px; font-size:0.9rem; color:#555">Claude asks permission before running commands or editing files — <span class="green">you approve each action</span>, nothing happens silently.</p>
+  </div>
+
+  <!-- 15. PIPELINE DIAGRAM -->
   <div class="slide slide-dark">
     <h3>the full picture</h3>
     <h2>Pipeline: every moving part</h2>
@@ -429,7 +461,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
 <!-- nav controls -->
 <div class="nav">
   <button onclick="prev()">← prev</button>
-  <span class="counter" id="counter">1 / 18</span>
+  <span class="counter" id="counter">1 / 19</span>
   <button onclick="next()">next →</button>
 </div>
 
