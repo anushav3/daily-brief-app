@@ -2,40 +2,35 @@
 """
 Daily Brief — Email Sender
 Fetches latest AI/security/startup news and cybersecurity stock data,
-then sends a beautifully formatted HTML email.
+then sends a beautifully formatted HTML email via Resend.
 
 Setup:
-  1. Create a Gmail App Password:
-     Google Account → Security → 2-Step Verification → App passwords
-  2. Set environment variables:
+  1. Sign up at https://resend.com and get an API key
+  2. Verify your sender email at resend.com/settings/domains (or use a verified domain)
+  3. Set environment variables:
      export EMAIL_TO='you@gmail.com'
-     export EMAIL_FROM='you@gmail.com'   # optional, defaults to EMAIL_TO
-     export GMAIL_APP_PASSWORD='xxxx xxxx xxxx xxxx'
-  3. Run:
+     export EMAIL_FROM='Daily Brief <you@yourdomain.com>'
+     export RESEND_API_KEY='re_xxxxxxxxxxxx'
+  4. Run:
      python3 daily_brief_email.py
 """
 
-import smtplib
-import ssl
 import json
 import re
 import os
 import sys
+import ssl
 import urllib.request
 import urllib.error
 import xml.etree.ElementTree as ET
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from datetime import datetime, timezone, timedelta
 
 # ──────────────────────────────────────────────
 #  CONFIG
 # ──────────────────────────────────────────────
 EMAIL_TO      = os.environ.get("EMAIL_TO", "")
-EMAIL_FROM    = os.environ.get("EMAIL_FROM", EMAIL_TO)   # defaults to same as EMAIL_TO
-SMTP_SERVER   = "smtp.gmail.com"
-SMTP_PORT     = 465
-APP_PASSWORD  = os.environ.get("GMAIL_APP_PASSWORD", "")
+EMAIL_FROM    = os.environ.get("EMAIL_FROM", "Daily Brief <onboarding@resend.dev>")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 
 STOCKS = [
     ("ZS",   "Zscaler"),
@@ -597,20 +592,29 @@ def build_email_html(stocks_rows: list[dict], news_sections: list[tuple]) -> str
 
 
 # ──────────────────────────────────────────────
-#  SEND EMAIL
+#  SEND EMAIL (Resend API)
 # ──────────────────────────────────────────────
-def send_email(html: str, subject: str, password: str) -> None:
-    msg                  = MIMEMultipart("alternative")
-    msg["Subject"]       = subject
-    msg["From"]          = EMAIL_FROM
-    msg["To"]            = EMAIL_TO
-    msg.attach(MIMEText(html, "html"))
+def send_email(html: str, subject: str, api_key: str) -> None:
+    payload = json.dumps({
+        "from":    EMAIL_FROM,
+        "to":      [EMAIL_TO],
+        "subject": subject,
+        "html":    html,
+    }).encode("utf-8")
 
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type":  "application/json",
+        },
+        method="POST",
+    )
     ctx = ssl.create_default_context()
-    with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, context=ctx) as server:
-        server.login(EMAIL_FROM, password)
-        server.send_message(msg)
-    print(f"✅  Email sent to {EMAIL_TO}")
+    with urllib.request.urlopen(req, timeout=15, context=ctx) as resp:
+        result = json.loads(resp.read().decode())
+    print(f"✅  Email sent to {EMAIL_TO} (id: {result.get('id', '?')})")
 
 
 # ──────────────────────────────────────────────
@@ -666,25 +670,25 @@ def main() -> None:
     subject = f"⚡ Your Daily Brief — {today}"
     html    = build_email_html(stocks_rows, news_sections)
 
-    password = APP_PASSWORD
-    if not password:
+    api_key = RESEND_API_KEY
+    if not api_key:
         # Save preview to disk instead of sending
         preview_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "daily_brief_preview.html")
         with open(preview_path, "w", encoding="utf-8") as f:
             f.write(html)
-        print(f"\n⚠️  GMAIL_APP_PASSWORD not set.")
+        print(f"\n⚠️  RESEND_API_KEY not set.")
         print(f"   Preview saved to: {preview_path}")
         print("\n   To enable real sending:")
-        print("   1. Go to myaccount.google.com → Security → App passwords")
-        print("   2. Create a password for 'Mail'")
-        print("   3. Run:  export GMAIL_APP_PASSWORD='xxxx xxxx xxxx xxxx'")
-        print("   4. Re-run this script")
+        print("   1. Sign up at https://resend.com and get an API key")
+        print("   2. Run:  export RESEND_API_KEY='re_xxxxxxxxxxxx'")
+        print("   3. Re-run this script")
         return
 
     try:
-        send_email(html, subject, password)
-    except smtplib.SMTPAuthenticationError:
-        print("❌  SMTP auth failed — check your App Password (not your Gmail login password).")
+        send_email(html, subject, api_key)
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        print(f"❌  Resend API error {e.code}: {body}")
         sys.exit(1)
     except Exception as e:
         print(f"❌  Failed to send: {e}")
