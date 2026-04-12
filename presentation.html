@@ -146,8 +146,12 @@
       <p>Free tier, 100 emails/day, one API key, no domain verification needed to start. One HTTP POST.</p>
     </div>
     <div class="attempt fail" style="margin-top:8px">
-      <h4>⚠️ Gotcha: Cloudflare 403 error 1010</h4>
+      <h4>⚠️ Gotcha 1: Cloudflare 403 error 1010</h4>
       <p>Resend's API blocked the request from Vercel. Fix: add a <code>User-Agent</code> header to the request.</p>
+    </div>
+    <div class="attempt fail" style="margin-top:8px">
+      <h4>⚠️ Gotcha 2: First email went to Gmail spam</h4>
+      <p><code>onboarding@resend.dev</code> is an unknown sender. Fix: add it to Gmail contacts as <em>"Anusha's Daily Brief"</em> — Gmail trusts contacts and future emails land in inbox.</p>
     </div>
   </div>
 

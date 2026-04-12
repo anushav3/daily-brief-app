@@ -55,8 +55,11 @@ Content-Type: application/json
 - Free tier: 100 emails/day, no domain verification needed for testing
 - Uses `onboarding@resend.dev` as sender out of the box
 
-**Problem hit:** Cloudflare 403 error code 1010 (bot block) on Vercel's servers
+**Problem hit 1:** Cloudflare 403 error code 1010 (bot block) on Vercel's servers
 **Fix:** Add `User-Agent: Mozilla/5.0 (compatible; DailyBrief/1.0)` header to the request
+
+**Problem hit 2:** First email landed in Gmail spam — `onboarding@resend.dev` is an unknown sender
+**Fix:** Add `onboarding@resend.dev` to Gmail contacts (saved as "Anusha's Daily Brief") — Gmail trusts contacts and all future emails go straight to inbox
 
 ---
 
