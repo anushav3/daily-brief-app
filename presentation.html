@@ -338,6 +338,11 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
         <span><strong>Test without waiting for cron</strong> — run from Vercel dashboard, not terminal<br/>
         <span style="color:#666; font-size:0.9em">Go to <code>Vercel → project → Deployments → Functions → send_brief → Test</code>. Running from terminal skips the env vars Vercel injected — the deployed function already has them baked in.</span></span>
       </li>
+      <li>
+        <span class="icon red">⚠️</span>
+        <span><strong>Use Claude Code, not Claude Chat</strong> — easy to mix up<br/>
+        <span style="color:#666; font-size:0.9em">Claude Chat (claude.ai) has no access to your files — you'd have to paste code in and out manually. Claude Code in VSCode reads your whole project, edits files directly, and runs commands. Make sure you're in the <strong>right pane in VSCode</strong>, not a browser tab.</span></span>
+      </li>
     </ul>
   </div>
 
