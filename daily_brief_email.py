@@ -33,11 +33,9 @@ EMAIL_FROM    = os.environ.get("EMAIL_FROM", "Daily Brief <onboarding@resend.dev
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 
 STOCKS = [
-    ("ZS",   "Zscaler"),
-    ("PANW", "Palo Alto Networks"),
-    ("CRWD", "CrowdStrike"),
-    ("ANET", "Arista Networks"),
-    ("NTSK", "Netskope"),
+    ("^GSPC", "S&P 500"),
+    ("^NDX",  "Nasdaq 100"),
+    ("VTSAX", "VTSAX"),
 ]
 
 NEWS_FEEDS = [
