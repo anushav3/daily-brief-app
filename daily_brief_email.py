@@ -606,12 +606,27 @@ def build_email_html(stocks_rows: list[dict], news_sections: list[tuple]) -> str
 # ──────────────────────────────────────────────
 #  SEND EMAIL (Resend API)
 # ──────────────────────────────────────────────
-def send_email(html: str, subject: str, api_key: str) -> None:
+BRIEF_URL = "https://daily-brief-app.vercel.app/brief"
+
+
+def send_email(subject: str, api_key: str) -> None:
+    today = datetime.now().strftime("%A, %B %d")
+    notification_html = f"""<!DOCTYPE html>
+<html>
+<body style="font-family:Georgia,serif;background:#fff;padding:40px 20px;max-width:480px;margin:0 auto;">
+  <p style="font-size:13px;color:#999;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px">Your Daily Brief</p>
+  <h1 style="font-size:22px;font-weight:bold;color:#111;margin:0 0 20px">{today}</h1>
+  <p style="font-size:15px;color:#444;margin-bottom:28px">AI · Security · Startups · Markets — ready to read.</p>
+  <a href="{BRIEF_URL}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-size:14px;letter-spacing:0.05em">Read Today's Brief →</a>
+  <p style="margin-top:32px;font-size:11px;color:#bbb">{BRIEF_URL}</p>
+</body>
+</html>"""
+
     payload = json.dumps({
         "from":    EMAIL_FROM,
         "to":      [EMAIL_TO],
         "subject": subject,
-        "html":    html,
+        "html":    notification_html,
     }).encode("utf-8")
 
     req = urllib.request.Request(
@@ -703,28 +718,23 @@ def main() -> None:
         print(f"{len(items)} articles")
         news_sections.append((section_name, items))
 
-    # Build & send
-    print("\n✉️  Building email…")
+    # Send notification email with link to brief
+    print("\n✉️  Sending notification email…")
     today   = datetime.now().strftime("%B %d, %Y")
     subject = f"⚡ Your Daily Brief — {today}"
-    html    = build_email_html(stocks_rows, news_sections)
 
     api_key = RESEND_API_KEY
     if not api_key:
-        # Save preview to disk instead of sending
-        preview_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "daily_brief_preview.html")
-        with open(preview_path, "w", encoding="utf-8") as f:
-            f.write(html)
         print(f"\n⚠️  RESEND_API_KEY not set.")
-        print(f"   Preview saved to: {preview_path}")
-        print("\n   To enable real sending:")
+        print(f"   Brief available at: {BRIEF_URL}")
+        print("\n   To enable email notifications:")
         print("   1. Sign up at https://resend.com and get an API key")
         print("   2. Run:  export RESEND_API_KEY='re_xxxxxxxxxxxx'")
         print("   3. Re-run this script")
         return
 
     try:
-        send_email(html, subject, api_key)
+        send_email(subject, api_key)
     except urllib.error.HTTPError as e:
         body = e.read().decode()
         print(f"❌  Resend API error {e.code}: {body}")
