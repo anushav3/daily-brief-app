@@ -5,5 +5,8 @@
       "path": "/api/send_brief",
       "schedule": "0 15 * * 1-5"
     }
+  ],
+  "rewrites": [
+    { "source": "/brief", "destination": "/api/brief" }
   ]
 }
