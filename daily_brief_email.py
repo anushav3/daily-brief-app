@@ -246,8 +246,8 @@ def fetch_ai_daily_brief() -> list[dict] | None:
     return articles or [{"title": title, "link": post_url, "desc": "", "date": pub_date_str}]
 
 
-def fetch_tldr_articles(url: str, _phrases: list[str], limit: int = 3) -> list[tuple[str, str]] | None:
-    """Fetch TLDR daily digest and return top headline+summary pairs in order."""
+def fetch_tldr_articles(url: str, _phrases: list[str], limit: int = 3) -> list[tuple[str, str, str]] | None:
+    """Fetch TLDR daily digest and return top (headline, summary, link) triples in order."""
     try:
         req = urllib.request.Request(
             url,
@@ -259,21 +259,20 @@ def fetch_tldr_articles(url: str, _phrases: list[str], limit: int = 3) -> list[t
         with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:
             html_content = resp.read().decode("utf-8", errors="replace")
 
-        # Extract headline + summary pairs directly from page order
-        article_pattern = r'<h3>([^<]+)</h3>\s*</a>\s*<div class="newsletter-html">(.*?)</div>'
+        # Capture the href from the anchor wrapping the h3, plus the summary div
+        article_pattern = r'<a[^>]+href="([^"]+)"[^>]*>\s*<h3>([^<]+)</h3>\s*</a>\s*<div class="newsletter-html">(.*?)</div>'
         matches = re.findall(article_pattern, html_content, re.DOTALL)
 
         articles = []
-        for headline, summary in matches:
+        for link, headline, summary in matches:
             if 'sponsor' in headline.lower() or 'sponsor' in summary.lower():
                 continue
             summary_clean = re.sub(r'<[^>]+>', '', summary).strip()
             summary_clean = re.sub(r'&[a-z]+;', ' ', summary_clean).strip()
-            # Take up to 2 sentences
             sentences = re.split(r'(?<=[.!?])\s+', summary_clean)
             desc = " ".join(s.strip() for s in sentences[:2] if s.strip())
             if headline.strip() and desc:
-                articles.append((headline.strip(), desc))
+                articles.append((headline.strip(), desc, link.strip()))
             if len(articles) >= limit:
                 break
 
@@ -518,10 +517,10 @@ def build_email_html(stocks_rows: list[dict], news_sections: list[tuple]) -> str
                     if is_tldr:
                         articles = fetch_tldr_articles(item['link'], [], limit=3)
                         if articles:
-                            for article_headline, article_summary in articles:
+                            for article_headline, article_summary, article_link in articles:
                                 html += f"""
                     <div class="news-item">
-                      <h4 class="news-title">{article_headline}</h4>
+                      <h4 class="news-title"><a href="{article_link}" target="_blank" rel="noopener">{article_headline}</a></h4>
                       <div class="news-sub">{article_summary}</div>
                     </div>"""
                         else:
