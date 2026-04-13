@@ -220,7 +220,7 @@ def fetch_ai_daily_brief() -> list[dict] | None:
     paras = re.findall(r'<p[^>]*>(.*?)</p>', post_html, re.DOTALL)
     articles = []
     for raw in paras:
-        text = re.sub(r'<[^>]+>', '', raw)
+        text = re.sub(r'<[^>]+>', ' ', raw)  # space between tags to avoid word merging
         text = re.sub(r'&[a-z]+;', ' ', text)
         text = re.sub(r'\s+', ' ', text).strip()
         # Skip short, CSS/JS, or nav fragments
@@ -228,7 +228,12 @@ def fetch_ai_daily_brief() -> list[dict] | None:
             continue
         if any(kw in text[:80] for kw in ['function', '{', 'var ', 'const ', 'Subscribe', '▶']):
             continue
+        # Skip link-dump paragraphs (concatenated headlines with no sentence breaks)
+        if not re.search(r'[.!?]', text[:150]):
+            continue
         # First sentence as title, rest as desc
+        # Also split on period immediately followed by capital (no space) e.g. "word.NextWord"
+        text = re.sub(r'([.!?])([A-Z])', r'\1 \2', text)
         parts = re.split(r'(?<=[.!?])\s+', text, maxsplit=1)
         item_title = parts[0].strip()
         item_desc  = parts[1].strip() if len(parts) > 1 else ""
