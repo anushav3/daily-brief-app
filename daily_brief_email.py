@@ -110,32 +110,18 @@ def fmt_price(v: float | None) -> str:
 
 
 def fetch_npr_up_first() -> list[dict] | None:
-    """Fetch the top 3 stories from the latest Mon–Sat NPR Up First episode (skips Sunday)"""
-    rss_url = "https://www.npr.org/rss/podcast.php?id=510318"
-    content = fetch_url(rss_url)
+    """Fetch the top 3 story headlines from the latest Mon–Sat NPR Up First episode."""
+    from email.utils import parsedate_to_datetime
+
+    content = fetch_url("https://www.npr.org/rss/podcast.php?id=510318")
     if not content:
         return None
 
-    # Parse RSS to get several recent episodes so we can skip Sunday
     items = parse_rss(content, 7)
     if not items:
         return None
 
-    # Find the most recent non-Sunday episode
-    import xml.etree.ElementTree as ET
-    from email.utils import parsedate_to_datetime
-
-    try:
-        root = ET.fromstring(content)
-    except Exception:
-        root = None
-
-    ns = {'content': 'http://purl.org/rss/1.0/modules/content/'}
-
-    item_elements = root.findall(".//item") if root is not None else []
-
     def pub_weekday(date_str):
-        """Return weekday int (0=Mon … 6=Sun) or None if unparseable."""
         if not date_str:
             return None
         try:
@@ -143,43 +129,41 @@ def fetch_npr_up_first() -> list[dict] | None:
         except Exception:
             return None
 
-    latest_episode = None
-    latest_elem = None
-    for ep, elem in zip(items, item_elements):
-        wd = pub_weekday(ep.get("date", ""))
-        if wd != 6:  # 6 = Sunday → skip
-            latest_episode = ep
-            latest_elem = elem
+    latest_episode = next(
+        (ep for ep in items if pub_weekday(ep.get("date", "")) != 6),
+        items[0],
+    )
+
+    episode_url = latest_episode.get("link", "https://www.npr.org/podcasts/510318/up-first/")
+    pub_date    = latest_episode.get("date", datetime.now(timezone.utc).isoformat())
+    description = latest_episode.get("desc", "")
+
+    # NPR Up First descriptions join stories with "Plus," / "And," / "Also,"
+    # e.g. "The Senate votes on X. Plus, Y is happening. And, Z occurred."
+    # Split on those markers to isolate each story, then take the first sentence.
+    SKIP = ('subscribe', 'follow us', 'listen', 'support', 'copyright', 'find us')
+    segments = re.split(r'\s+(?:Plus|And|Also),\s+', description, flags=re.IGNORECASE)
+    headlines = []
+    for seg in segments:
+        headline = re.split(r'(?<=[.!?])\s+', seg.strip())[0].strip().rstrip('.,')
+        if len(headline) >= 15 and not any(p in headline.lower() for p in SKIP):
+            headlines.append(headline)
+        if len(headlines) >= 3:
             break
 
-    # Fall back to first item if all recent episodes are Sunday (unlikely)
-    if latest_episode is None:
-        latest_episode = items[0]
-        latest_elem = item_elements[0] if item_elements else None
+    # Fallback: take the first 3 sentences from the description directly
+    if not headlines:
+        for s in re.split(r'(?<=[.!?])\s+', description):
+            s = s.strip()
+            if len(s) >= 15 and not any(p in s.lower() for p in SKIP):
+                headlines.append(s)
+            if len(headlines) >= 3:
+                break
 
-    # Get full description from content:encoded if available
-    description = ""
-    if latest_elem is not None:
-        desc_elem = latest_elem.find("content:encoded", ns)
-        if desc_elem is not None and desc_elem.text:
-            description = strip_html(desc_elem.text)
-    if not description:
-        description = latest_episode.get("desc", "")
-
-    # Extract up to 3 key story sentences
-    sentences = [s.strip() for s in re.split(r'\.\s+', description) if s.strip() and len(s.strip()) > 10]
-    key_stories = sentences[:3]
-
-    articles = []
-    for story in key_stories:
-        articles.append({
-            "title": story,
-            "link": latest_episode.get("link", "https://www.npr.org/podcasts/510318/up-first/"),
-            "desc": "",
-            "date": latest_episode.get("date", datetime.now(timezone.utc).isoformat())
-        })
-
-    return articles
+    return [
+        {"title": h, "link": episode_url, "desc": "", "date": pub_date}
+        for h in headlines
+    ] or None
 
 
 def fetch_ai_daily_brief() -> list[dict] | None:
