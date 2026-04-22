@@ -79,8 +79,6 @@ def fetch_url(url: str, timeout: int = 12) -> str | None:
             headers={"User-Agent": "Mozilla/5.0 (compatible; DailyBrief/1.0)"}
         )
         ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
         with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
             return resp.read().decode("utf-8", errors="replace")
     except Exception as e:
@@ -264,8 +262,6 @@ def fetch_tldr_articles(url: str, _phrases: list[str], limit: int = 3) -> list[t
             headers={"User-Agent": "Mozilla/5.0 (compatible; DailyBrief/1.0)"}
         )
         ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
         with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:
             html_content = resp.read().decode("utf-8", errors="replace")
 
