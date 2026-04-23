@@ -462,7 +462,62 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     <p style="margin-top:20px; font-size:0.95rem; color:#555">Use cases for a DB: deduplicate articles · track read history · store user preferences · log every send</p>
   </div>
 
-  <!-- 15. WANT YOUR OWN -->
+  <!-- 18. ADD AN LLM -->
+  <div class="slide slide-accent">
+    <h3>enhancement: add an llm</h3>
+    <h2>Connect to the Claude API —<br/><span class="green">no extra packages.</span></h2>
+    <div class="two-col" style="max-width:920px;">
+      <div class="col">
+        <h4 class="blue">Wire it up (stdlib only)</h4>
+        <pre style="font-size:0.78rem; padding:14px 16px; margin:0">ANTHROPIC_API_KEY=sk-ant-...
+# add to Vercel env vars
+
+def fetch_ai_insight(headlines):
+    key = os.environ.get(
+        "ANTHROPIC_API_KEY","")
+    if not key: return None
+    body = json.dumps({
+      "model": "claude-haiku-4-5",
+      "max_tokens": 80,
+      "messages": [{"role":"user",
+        "content": "One sharp insight "
+        "on today's news:\n"+
+        "\n".join(f"- {h}"
+          for h in headlines)
+      }]
+    }).encode()
+    req = urllib.request.Request(
+      "https://api.anthropic.com"
+      "/v1/messages", data=body,
+      headers={
+        "x-api-key": key,
+        "anthropic-version":"2023-06-01",
+        "content-type":"application/json"
+      })
+    with urllib.request.urlopen(
+        req, timeout=10) as r:
+      return json.loads(r.read())[
+        "content"][0]["text"]</pre>
+      </div>
+      <div class="col" style="display:flex; flex-direction:column; gap:14px;">
+        <div>
+          <h4 class="yellow">Example features</h4>
+          <li>🧠 <strong>AI Insight</strong> — one-sentence synthesis of the day's headlines, added as a banner at the top of the brief</li>
+          <li>✨ <strong>Daily Quote</strong> — Claude picks a thought-provoking quote relevant to the news themes</li>
+          <li>📝 <strong>TLDR of TLDRs</strong> — 3-bullet executive summary across all feeds</li>
+        </div>
+        <div>
+          <h4 class="green">Where in the pipeline</h4>
+          <p style="font-size:0.9rem">After all feeds are fetched, pass the top headlines into <code>fetch_ai_insight()</code>, then inject the result into <code>build_email_html()</code> as a highlighted block above the news grid.</p>
+        </div>
+        <div style="background:#0d170d; border:1px solid #14532d; border-radius:6px; padding:10px 14px;">
+          <p style="font-size:0.85rem; color:#86efac;">💡 Use <code>claude-haiku-4-5</code> — fastest and cheapest. At 80 tokens/day it costs &lt; $0.01/month on the free API tier.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 19. WANT YOUR OWN -->
   <div class="slide slide-dark">
     <h3>want your own?</h3>
     <h2>Fork it. Change 3 env vars. Done.</h2>
@@ -491,7 +546,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
 <!-- nav controls -->
 <div class="nav">
   <button onclick="prev()">← prev</button>
-  <span class="counter" id="counter">1 / 19</span>
+  <span class="counter" id="counter">1 / 20</span>
   <button onclick="next()">next →</button>
 </div>
 
