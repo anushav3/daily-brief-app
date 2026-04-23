@@ -110,60 +110,69 @@ def fmt_price(v: float | None) -> str:
 
 
 def fetch_npr_up_first() -> list[dict] | None:
-    """Fetch the top 3 story headlines from the latest Mon–Sat NPR Up First episode."""
+    """Fetch 3 story summaries from the latest Mon–Sat NPR Up First episode via RSS."""
     from email.utils import parsedate_to_datetime
 
     content = fetch_url("https://www.npr.org/rss/podcast.php?id=510318")
     if not content:
         return None
 
-    items = parse_rss(content, 7)
-    if not items:
+    try:
+        root = ET.fromstring(content)
+    except ET.ParseError:
         return None
 
-    def pub_weekday(date_str):
-        if not date_str:
-            return None
+    BOILERPLATE = (
+        'want more analysis', 'subscribe', 'follow us', 'today\'s episode',
+        'it was produced', 'our director', 'engineering support', 'technical director',
+        'executive producer', 'supervising', 'copyright', 'privacy policy',
+        'pcm.adswizz', 'find us',
+    )
+
+    def is_boilerplate(text: str) -> bool:
+        t = text.lower()
+        return any(p in t for p in BOILERPLATE)
+
+    def pub_weekday(date_str: str) -> int | None:
         try:
             return parsedate_to_datetime(date_str).weekday()
         except Exception:
             return None
 
-    latest_episode = next(
-        (ep for ep in items if pub_weekday(ep.get("date", "")) != 6),
-        items[0],
-    )
+    for item in root.findall(".//item"):
+        pub_date = item.findtext("pubDate") or ""
+        if pub_weekday(pub_date) == 6:  # skip Sunday
+            continue
 
-    episode_url = latest_episode.get("link", "https://www.npr.org/podcasts/510318/up-first/")
-    pub_date    = latest_episode.get("date", datetime.now(timezone.utc).isoformat())
-    description = latest_episode.get("desc", "")
+        link = item.findtext("link") or "https://www.npr.org/podcasts/510318/up-first/"
+        title_text = item.findtext("title") or ""
 
-    # NPR Up First descriptions join stories with "Plus," / "And," / "Also,"
-    # e.g. "The Senate votes on X. Plus, Y is happening. And, Z occurred."
-    # Split on those markers to isolate each story, then take the first sentence.
-    SKIP = ('subscribe', 'follow us', 'listen', 'support', 'copyright', 'find us')
-    segments = re.split(r'\s+(?:Plus|And|Also),\s+', description, flags=re.IGNORECASE)
-    headlines = []
-    for seg in segments:
-        headline = re.split(r'(?<=[.!?])\s+', seg.strip())[0].strip().rstrip('.,')
-        if len(headline) >= 15 and not any(p in headline.lower() for p in SKIP):
-            headlines.append(headline)
-        if len(headlines) >= 3:
-            break
+        # description CDATA contains HTML; split on <br> to isolate each story paragraph
+        desc_raw = item.findtext("description") or ""
+        story_paras = re.split(r'<br\s*/?>', desc_raw, flags=re.IGNORECASE)
 
-    # Fallback: take the first 3 sentences from the description directly
-    if not headlines:
-        for s in re.split(r'(?<=[.!?])\s+', description):
-            s = s.strip()
-            if len(s) >= 15 and not any(p in s.lower() for p in SKIP):
-                headlines.append(s)
-            if len(headlines) >= 3:
+        stories = []
+        for para in story_paras:
+            clean = re.sub(r'\s+', ' ', strip_html(para)).strip()
+            if len(clean) >= 30 and not is_boilerplate(clean):
+                stories.append(clean)
+            if len(stories) == 3:
                 break
 
-    return [
-        {"title": h, "link": episode_url, "desc": "", "date": pub_date}
-        for h in headlines
-    ] or None
+        # Episode title is comma-separated story headlines, e.g. "Story A, Story B, Story C"
+        story_titles = [t.strip() for t in title_text.split(',') if t.strip()]
+
+        result = []
+        for i, story in enumerate(stories):
+            headline = (
+                story_titles[i] if i < len(story_titles)
+                else re.split(r'(?<=[.!?])\s+', story)[0].rstrip('.,')
+            )
+            result.append({"title": headline, "link": link, "desc": story, "date": pub_date})
+
+        return result or None
+
+    return None
 
 
 def fetch_ai_daily_brief() -> list[dict] | None:
