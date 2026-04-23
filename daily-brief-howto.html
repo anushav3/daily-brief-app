@@ -96,7 +96,7 @@
       <li><span class="icon">🤖</span><span>Scrapes the latest AI Daily Brief post from beehiiv</span></li>
       <li><span class="icon">🌍</span><span>Grabs NPR Up First stories from RSS (Mon–Sat, skips Sunday)</span></li>
       <li><span class="icon">✉️</span><span>Sends a short notification email with a link → opens full brief in browser</span></li>
-      <li><span class="icon">🔒</span><span>Live brief at <code>daily-brief-app.vercel.app/brief</code> — rate limited to 10 views/day via Upstash Redis</span></li>
+      <li><span class="icon">🔒</span><span>Live brief at <code>daily-brief-app.vercel.app/brief</code> — rate limited to 100 views/day via Upstash Redis</span></li>
     </ul>
   </div>
 
@@ -112,7 +112,7 @@
         <li>Google Drive (local file storage + backup)</li>
         <li>Vercel (serverless hosting + cron)</li>
         <li>Resend (notification email API)</li>
-        <li>Upstash Redis (rate limiting — 10 req/day)</li>
+        <li>Upstash Redis (rate limiting — 100 req/day)</li>
         <li>GitHub (source + auto-deploy)</li>
         <li>Claude Code (coding agent)</li>
       </div>
@@ -221,7 +221,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     <div class="two-col" style="margin-top:16px; max-width:760px;">
       <div class="col">
         <h4 class="yellow">DOS protection</h4>
-        <p style="font-size:0.9rem">The <code>/brief</code> endpoint on Vercel's free tier is rate-limited to <strong>10 requests/day</strong> using Upstash Redis. Counter auto-resets at midnight UTC. Returns <code>429</code> when exceeded.</p>
+        <p style="font-size:0.9rem">The <code>/brief</code> endpoint on Vercel's free tier is rate-limited to <strong>100 requests/day</strong> using Upstash Redis. Counter auto-resets at midnight UTC. Returns <code>429</code> when exceeded.</p>
       </div>
       <div class="col">
         <h4 class="green">Env vars in use</h4>
@@ -338,8 +338,9 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
       <div class="col">
         <h4 class="blue">Skills — you trigger these</h4>
         <p style="color:#666; font-size:0.85em; margin-bottom:8px">Type <code>/skill-name</code> to run a named workflow.</p>
-        <li><code>/commit</code> — writes a commit message, stages files, commits</li>
-        <li><code>/review-pr</code> — reviews a pull request</li>
+        <li><code>/init</code> — reads the whole codebase, writes <code>CLAUDE.md</code> so the agent knows your project</li>
+        <li><code>/security-review</code> — audits all changes on the branch for security issues before deploying</li>
+        <li><code>/rewind</code> — rolls back the last change when you don't like what the agent did</li>
         <p style="margin-top:10px; color:#555; font-size:0.85em">Everything else Claude picks on its own — you never choose which tool to call.</p>
       </div>
     </div>
@@ -393,7 +394,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
         <div style="display:flex; flex-direction:column; gap:4px; align-self:center;">
           <span style="background:#170d17; border:1px solid #6b21a8; border-radius:4px; padding:4px 10px; color:#d8b4fe;">Resend → notification email</span>
           <span style="background:#170d0d; border:1px solid #6b21a8; border-radius:4px; padding:4px 10px; color:#d8b4fe;">/brief → full HTML (rate limited)</span>
-          <span style="background:#0d1717; border:1px solid #164e63; border-radius:4px; padding:4px 10px; color:#99f6e4;">Upstash Redis · 10 req/day</span>
+          <span style="background:#0d1717; border:1px solid #164e63; border-radius:4px; padding:4px 10px; color:#99f6e4;">Upstash Redis · 100 req/day</span>
         </div>
       </div>
 
@@ -472,50 +473,20 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     <h2>Connect to the Claude API —<br/><span class="green">no extra packages.</span></h2>
     <div class="two-col" style="max-width:920px;">
       <div class="col">
-        <h4 class="blue">Wire it up (stdlib only)</h4>
-        <pre style="font-size:0.78rem; padding:14px 16px; margin:0">ANTHROPIC_API_KEY=sk-ant-...
-# add to Vercel env vars
-
-def fetch_ai_insight(headlines):
-    key = os.environ.get(
-        "ANTHROPIC_API_KEY","")
-    if not key: return None
-    body = json.dumps({
-      "model": "claude-haiku-4-5",
-      "max_tokens": 80,
-      "messages": [{"role":"user",
-        "content": "One sharp insight "
-        "on today's news:\n"+
-        "\n".join(f"- {h}"
-          for h in headlines)
-      }]
-    }).encode()
-    req = urllib.request.Request(
-      "https://api.anthropic.com"
-      "/v1/messages", data=body,
-      headers={
-        "x-api-key": key,
-        "anthropic-version":"2023-06-01",
-        "content-type":"application/json"
-      })
-    with urllib.request.urlopen(
-        req, timeout=10) as r:
-      return json.loads(r.read())[
-        "content"][0]["text"]</pre>
+        <h4 class="yellow">Example features</h4>
+        <li>🧠 <strong>AI Insight</strong> — one-sentence synthesis of the day's headlines, added as a banner at the top of the brief</li>
+        <li>✨ <strong>Daily Quote</strong> — Claude picks a thought-provoking quote relevant to the news themes</li>
+        <li>📝 <strong>TLDR of TLDRs</strong> — 3-bullet executive summary across all feeds</li>
+        <li style="margin-top:8px; color:#555; font-size:0.9rem">Just describe the feature to Claude Code — it writes the API call for you. Add <code>ANTHROPIC_API_KEY</code> as a Vercel env var and you're done.</li>
       </div>
-      <div class="col" style="display:flex; flex-direction:column; gap:14px;">
-        <div>
-          <h4 class="yellow">Example features</h4>
-          <li>🧠 <strong>AI Insight</strong> — one-sentence synthesis of the day's headlines, added as a banner at the top of the brief</li>
-          <li>✨ <strong>Daily Quote</strong> — Claude picks a thought-provoking quote relevant to the news themes</li>
-          <li>📝 <strong>TLDR of TLDRs</strong> — 3-bullet executive summary across all feeds</li>
+      <div class="col">
+        <h4 class="green">Where in the pipeline</h4>
+        <p style="font-size:0.9rem">After all feeds are fetched, pass the top headlines into a new <code>fetch_ai_insight()</code> function, then inject the result into <code>build_email_html()</code> as a highlighted block above the news grid.</p>
+        <div style="margin-top:14px; background:#0d170d; border:1px solid #14532d; border-radius:6px; padding:10px 14px;">
+          <p style="font-size:0.85rem; color:#86efac;">💡 Use <code>claude-haiku-4-5</code> — fastest and cheapest. At ~80 tokens/day it costs &lt; $0.01/month.</p>
         </div>
-        <div>
-          <h4 class="green">Where in the pipeline</h4>
-          <p style="font-size:0.9rem">After all feeds are fetched, pass the top headlines into <code>fetch_ai_insight()</code>, then inject the result into <code>build_email_html()</code> as a highlighted block above the news grid.</p>
-        </div>
-        <div style="background:#0d170d; border:1px solid #14532d; border-radius:6px; padding:10px 14px;">
-          <p style="font-size:0.85rem; color:#86efac;">💡 Use <code>claude-haiku-4-5</code> — fastest and cheapest. At 80 tokens/day it costs &lt; $0.01/month on the free API tier.</p>
+        <div style="margin-top:10px; background:#0d1117; border:1px solid #1e40af; border-radius:6px; padding:10px 14px;">
+          <p style="font-size:0.85rem; color:#93c5fd;">🔑 The API call is a plain HTTP POST — no extra packages needed. Claude Code will write it in stdlib (<code>urllib</code> + <code>json</code>) if you ask.</p>
         </div>
       </div>
     </div>
