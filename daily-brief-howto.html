@@ -231,6 +231,10 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
         <li style="font-size:0.85rem"><code>UPSTASH_REDIS_REST_TOKEN</code></li>
       </div>
     </div>
+    <div style="margin-top:16px; max-width:760px; width:100%; background:#1a0a0a; border:1px solid #ef4444; border-radius:8px; padding:14px 18px; text-align:left;">
+      <p style="font-size:0.9rem; color:#f87171; font-weight:600; margin-bottom:6px;">⚠️ Platform breaches happen — Vercel had a security incident in April 2026</p>
+      <p style="font-size:0.875rem; color:#aaa; line-height:1.6">Attackers accessed environment variables stored on the platform. If your hosting provider is ever breached, anyone who got your env vars can call your APIs, send emails from your account, or rack up charges — until you rotate the keys. <span class="yellow">Rotating means: generate a new API key in Resend/Upstash/Anthropic, update it in Vercel's dashboard, redeploy. The old key stops working immediately.</span> Make this a habit whenever you see a breach notice, even if you're not sure you were affected.</p>
+    </div>
   </div>
 
   <!-- 9. WHAT WORKED -->
