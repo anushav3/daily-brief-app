@@ -96,7 +96,7 @@
       <li><span class="icon">🤖</span><span>Scrapes the latest AI Daily Brief post from beehiiv</span></li>
       <li><span class="icon">🌍</span><span>Grabs NPR Up First stories from RSS (Mon–Sat, skips Sunday)</span></li>
       <li><span class="icon">✉️</span><span>Sends a short notification email with a link → opens full brief in browser</span></li>
-      <li><span class="icon">🔒</span><span>Live brief at <code>daily-brief-app.vercel.app/brief</code> — rate limited to 100 views/day via Upstash Redis</span></li>
+      <li><span class="icon">🔒</span><span>Live brief at <code>daily-brief-app.vercel.app/brief</code> — rate limited to 1000 views/day via Upstash Redis</span></li>
     </ul>
   </div>
 
@@ -112,7 +112,7 @@
         <li>Google Drive (local file storage + backup)</li>
         <li>Vercel (serverless hosting + cron)</li>
         <li>Resend (notification email API)</li>
-        <li>Upstash Redis (rate limiting — 100 req/day)</li>
+        <li>Upstash Redis (rate limiting — 1000 req/day)</li>
         <li>GitHub (source + auto-deploy)</li>
         <li>Claude Code (coding agent)</li>
       </div>
@@ -221,7 +221,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
     <div class="two-col" style="margin-top:16px; max-width:760px;">
       <div class="col">
         <h4 class="yellow">DOS protection</h4>
-        <p style="font-size:0.9rem">The <code>/brief</code> endpoint on Vercel's free tier is rate-limited to <strong>100 requests/day</strong> using Upstash Redis. Counter auto-resets at midnight UTC. Returns <code>429</code> when exceeded.</p>
+        <p style="font-size:0.9rem">The <code>/brief</code> endpoint on Vercel's free tier is rate-limited to <strong>1000 requests/day</strong> using Upstash Redis. Counter auto-resets at midnight UTC. Returns <code>429</code> when exceeded.</p>
       </div>
       <div class="col">
         <h4 class="green">Env vars in use</h4>
@@ -394,7 +394,7 @@ API_KEY  = os.environ.get("RESEND_API_KEY", "")</pre>
         <div style="display:flex; flex-direction:column; gap:4px; align-self:center;">
           <span style="background:#170d17; border:1px solid #6b21a8; border-radius:4px; padding:4px 10px; color:#d8b4fe;">Resend → notification email</span>
           <span style="background:#170d0d; border:1px solid #6b21a8; border-radius:4px; padding:4px 10px; color:#d8b4fe;">/brief → full HTML (rate limited)</span>
-          <span style="background:#0d1717; border:1px solid #164e63; border-radius:4px; padding:4px 10px; color:#99f6e4;">Upstash Redis · 100 req/day</span>
+          <span style="background:#0d1717; border:1px solid #164e63; border-radius:4px; padding:4px 10px; color:#99f6e4;">Upstash Redis · 1000 req/day</span>
         </div>
       </div>
 

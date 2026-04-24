@@ -10,7 +10,7 @@ from daily_brief_email import fetch_brief_data
 
 UPSTASH_URL   = os.environ.get("UPSTASH_REDIS_REST_URL", "")
 UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "")
-DAILY_LIMIT   = 100
+DAILY_LIMIT   = 1000
 
 
 def _upstash(command: str) -> dict:
@@ -56,7 +56,7 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(
                 b"<html><body style='font-family:sans-serif;padding:40px'>"
                 b"<h2>Daily limit reached</h2>"
-                b"<p>This page refreshes at most 100 times per day. Check back tomorrow.</p>"
+                b"<p>This page refreshes at most 1000 times per day. Check back tomorrow.</p>"
                 b"</body></html>"
             )
             return
