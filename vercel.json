@@ -4,9 +4,14 @@
     {
       "path": "/api/send_brief",
       "schedule": "0 15 * * 1-5"
+    },
+    {
+      "path": "/api/send_anand_brief",
+      "schedule": "0 15 * * 1-5"
     }
   ],
   "rewrites": [
-    { "source": "/brief", "destination": "/api/brief" }
+    { "source": "/brief", "destination": "/api/brief" },
+    { "source": "/anand", "destination": "/api/anand_brief" }
   ]
 }
