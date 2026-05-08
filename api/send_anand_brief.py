@@ -1,5 +1,7 @@
 import sys
 import os
+import io
+import contextlib
 from http.server import BaseHTTPRequestHandler
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -16,8 +18,10 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(b"Unauthorized")
             return
 
+        buf = io.StringIO()
         try:
-            main()
+            with contextlib.redirect_stdout(buf):
+                main()
             self.send_response(200)
             self.send_header("Content-type", "text/plain")
             self.end_headers()
@@ -26,12 +30,14 @@ class handler(BaseHTTPRequestHandler):
             self.send_response(500)
             self.send_header("Content-type", "text/plain")
             self.end_headers()
-            self.wfile.write(b"Error: check ANAND_EMAIL_TO / ANAND_RESEND_API_KEY env vars")
+            output = buf.getvalue() or "No output captured"
+            self.wfile.write(f"Error (captured output):\n{output}".encode())
         except Exception as e:
             self.send_response(500)
             self.send_header("Content-type", "text/plain")
             self.end_headers()
-            self.wfile.write(f"Error: {e}".encode())
+            output = buf.getvalue()
+            self.wfile.write(f"Error: {e}\nOutput:\n{output}".encode())
 
     def log_message(self, format, *args):
         pass
