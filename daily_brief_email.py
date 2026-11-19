@@ -295,8 +295,18 @@ def fetch_stock(symbol: str) -> dict | None:
         data    = json.loads(content)
         result  = data["chart"]["result"][0]
         closes  = [c for c in result["indicators"]["quote"][0]["close"] if c is not None]
-        if len(closes) < 2:
+        if not closes:
             return None
+        if len(closes) < 2:
+            # Newly listed (e.g. IPO day): only one close exists. Show the price,
+            # day change vs. the reference close (IPO price), and no 1m change yet.
+            cur  = closes[-1]
+            ref  = result.get("meta", {}).get("chartPreviousClose")
+            return {
+                "price": cur,
+                "day":   (cur - ref) / ref * 100 if ref else None,
+                "month": None,
+            }
         cur     = closes[-1]
         prev    = closes[-2]
         start   = closes[0]
