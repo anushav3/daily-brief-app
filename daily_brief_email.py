@@ -38,7 +38,7 @@ STOCKS = [
     ("^NDX",    "Nasdaq 100"),
     ("VTSAX",   "VTSAX"),
     ("NVDA",    "Nvidia"),
-    ("MSFT",    "Microsoft"),
+    ("ANT",     "Anthropic"),
     ("ETH-USD", "ETH"),
     # Row 2 — cybersecurity
     ("ZS",    "Zscaler"),
@@ -426,7 +426,7 @@ def build_email_html(stocks_rows: list[dict], news_sections: list[tuple]) -> str
     # ── stock ticker — two rows: indices on top, cybersecurity below ──
     # Index tickers use display name; equity tickers use symbol
     # Row 1: indices use display names; equities use symbols
-    INDEX_SYMS   = {"^GSPC", "^NDX", "VTSAX", "NVDA", "MSFT", "ETH-USD"}
+    INDEX_SYMS   = {"^GSPC", "^NDX", "VTSAX", "NVDA", "ANT", "ETH-USD"}
     DISPLAY_NAME = {"^GSPC", "^NDX", "VTSAX", "ETH-USD"}  # only these get full names
 
     def render_ticker_row(rows):
